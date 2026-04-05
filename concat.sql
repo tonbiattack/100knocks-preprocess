@@ -155,6 +155,15 @@ LIMIT 5;
 
 -- コード例1: window関数や分析関数で最頻値を集計する
 -- S-029: レシート明細データ（receipt）に対し、店舗コード（store_cd）ごとに商品コード（product_cd）の最頻値を求め、10件表示させよ。
+-- 【解説】
+-- ステップ1: product_cnt CTE
+--   store_cd × product_cd の組み合わせごとに出現回数(mode_cnt)を集計する
+-- ステップ2: product_mode CTE
+--   RANK() OVER(PARTITION BY store_cd ORDER BY mode_cnt DESC)
+--     → 店舗ごと(PARTITION BY store_cd)に出現回数の多い順(ORDER BY mode_cnt DESC)で順位付け
+--     → 同数1位が複数ある場合はすべて rnk=1 になる
+-- ステップ3: メインクエリ
+--   rnk=1 の行のみ抽出することで、各店舗の最頻値(最も多く売れた商品)を取得する
 WITH product_cnt AS (
     SELECT
         store_cd,
