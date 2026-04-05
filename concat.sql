@@ -139,6 +139,10 @@ GROUP BY
 ORDER BY avg_amount DESC
 LIMIT 5;
 
+-- PERCENTILE_CONT(0.5) は連続パーセンタイル関数で、指定した分位数(0.5=50パーセンタイル=中央値)を計算する
+-- WITHIN GROUP (ORDER BY amount) は「amountを昇順に並べた中での」パーセンタイル位置を指定する
+-- 値が偶数個の場合、中央2値の平均値を返す（連続補間）
+-- GROUP BY store_cd で店舗ごとに中央値を集計している
 SELECT store_cd, PERCENTILE_CONT(0.5) WITHIN GROUP (
         ORDER BY amount
     ) AS amount_50per
