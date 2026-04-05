@@ -87,23 +87,51 @@ SELECT * FROM customer ORDER BY birth_day DESC LIMIT 10;
 -- RANK() はウィンドウ関数で、指定した順序に基づいて順位を付ける
 -- OVER(ORDER BY amount DESC) は「amountの降順で順位を計算する」ウィンドウ定義
 -- 同じ値が複数ある場合、同順位となり次の順位はスキップされる（例: 1,1,3,4...）
-SELECT
-    customer_id,
-    amount,
-    RANK() OVER(ORDER BY amount DESC) AS ranking
+SELECT customer_id, amount, RANK() OVER (
+        ORDER BY amount DESC
+    ) AS ranking
 FROM receipt
-LIMIT 10
-;
+LIMIT 10;
 
-SELECT
-    customer_id,
-    amount,
-    ROW_NUMBER() OVER(ORDER BY amount DESC) AS ranking 
+SELECT customer_id, amount, ROW_NUMBER() OVER (
+        ORDER BY amount DESC
+    ) AS ranking
 FROM receipt
-LIMIT 10
-;
+LIMIT 10;
 
 SELECT COUNT(1) FROM receipt;
 
-
 SELECT COUNT(*) FROM receipt;
+
+SELECT COUNT(DISTINCT customer_id) FROM receipt;
+
+SELECT store_cd, SUM(amount) AS amount, SUM(quantity) AS quantity
+FROM receipt
+GROUP BY
+    store_cd;
+
+SELECT
+    customer_id,
+    MAX(sales_ymd) AS last_purchase_date
+FROM receipt
+GROUP BY customer_id
+LIMIT 10
+;
+
+SELECT
+    customer_id,
+    MIN(sales_ymd)
+FROM receipt
+GROUP BY customer_id
+LIMIT 10
+;
+
+SELECT
+    customer_id,
+    MAX(sales_ymd),
+    MIN(sales_ymd)
+FROM receipt
+GROUP BY customer_id
+HAVING MAX(sales_ymd) != MIN(sales_ymd)
+LIMIT 10
+;
