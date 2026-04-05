@@ -203,3 +203,10 @@ GROUP BY
     store_cd
 ORDER BY store_cd
 LIMIT 10;
+
+SELECT store_cd, VAR_POP(amount) AS vars_amount
+FROM receipt
+GROUP BY
+    store_cd
+ORDER BY vars_amount DESC
+LIMIT 5;
