@@ -151,3 +151,37 @@ GROUP BY
     store_cd
 ORDER BY amount_50per DESC
 LIMIT 5;
+
+
+-- コード例1: window関数や分析関数で最頻値を集計する
+-- S-029: レシート明細データ（receipt）に対し、店舗コード（store_cd）ごとに商品コード（product_cd）の最頻値を求め、10件表示させよ。
+WITH product_cnt AS (
+    SELECT
+        store_cd,
+        product_cd,
+        COUNT(1) AS mode_cnt
+    FROM receipt
+    GROUP BY
+        store_cd,
+        product_cd
+),
+product_mode AS (
+    SELECT
+        store_cd,
+        product_cd,
+        mode_cnt,
+        RANK() OVER(PARTITION BY store_cd ORDER BY mode_cnt DESC) AS rnk
+    FROM product_cnt
+)
+SELECT
+    store_cd,
+    product_cd,
+    mode_cnt
+FROM product_mode
+WHERE
+    rnk = 1
+ORDER BY
+    store_cd,
+    product_cd
+LIMIT 10
+;
