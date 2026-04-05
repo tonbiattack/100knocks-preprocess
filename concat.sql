@@ -114,24 +114,36 @@ SELECT
     customer_id,
     MAX(sales_ymd) AS last_purchase_date
 FROM receipt
-GROUP BY customer_id
-LIMIT 10
-;
+GROUP BY
+    customer_id
+LIMIT 10;
 
-SELECT
-    customer_id,
-    MIN(sales_ymd)
+SELECT customer_id, MIN(sales_ymd)
 FROM receipt
-GROUP BY customer_id
-LIMIT 10
-;
+GROUP BY
+    customer_id
+LIMIT 10;
 
-SELECT
-    customer_id,
-    MAX(sales_ymd),
-    MIN(sales_ymd)
+SELECT customer_id, MAX(sales_ymd), MIN(sales_ymd)
 FROM receipt
-GROUP BY customer_id
-HAVING MAX(sales_ymd) != MIN(sales_ymd)
-LIMIT 10
-;
+GROUP BY
+    customer_id
+HAVING
+    MAX(sales_ymd) != MIN(sales_ymd)
+LIMIT 10;
+
+SELECT store_cd, AVG(amount) AS avg_amount
+FROM receipt
+GROUP BY
+    store_cd
+ORDER BY avg_amount DESC
+LIMIT 5;
+
+SELECT store_cd, PERCENTILE_CONT(0.5) WITHIN GROUP (
+        ORDER BY amount
+    ) AS amount_50per
+FROM receipt
+GROUP BY
+    store_cd
+ORDER BY amount_50per DESC
+LIMIT 5;
