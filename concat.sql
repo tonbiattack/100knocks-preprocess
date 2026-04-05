@@ -152,7 +152,6 @@ GROUP BY
 ORDER BY amount_50per DESC
 LIMIT 5;
 
-
 -- コード例1: window関数や分析関数で最頻値を集計する
 -- S-029: レシート明細データ（receipt）に対し、店舗コード（store_cd）ごとに商品コード（product_cd）の最頻値を求め、10件表示させよ。
 -- 【解説】
@@ -164,33 +163,43 @@ LIMIT 5;
 --     → 同数1位が複数ある場合はすべて rnk=1 になる
 -- ステップ3: メインクエリ
 --   rnk=1 の行のみ抽出することで、各店舗の最頻値(最も多く売れた商品)を取得する
-WITH product_cnt AS (
-    SELECT
-        store_cd,
-        product_cd,
-        COUNT(1) AS mode_cnt
-    FROM receipt
-    GROUP BY
-        store_cd,
-        product_cd
-),
-product_mode AS (
-    SELECT
-        store_cd,
-        product_cd,
-        mode_cnt,
-        RANK() OVER(PARTITION BY store_cd ORDER BY mode_cnt DESC) AS rnk
-    FROM product_cnt
-)
-SELECT
-    store_cd,
-    product_cd,
-    mode_cnt
+WITH
+    product_cnt AS (
+        SELECT store_cd, product_cd, COUNT(1) AS mode_cnt
+        FROM receipt
+        GROUP BY
+            store_cd,
+            product_cd
+    ),
+    product_mode AS (
+        SELECT
+            store_cd,
+            product_cd,
+            mode_cnt,
+            RANK() OVER (
+                PARTITION BY
+                    store_cd
+                ORDER BY mode_cnt DESC
+            ) AS rnk
+        FROM product_cnt
+    )
+SELECT store_cd, product_cd, mode_cnt
 FROM product_mode
 WHERE
     rnk = 1
-ORDER BY
-    store_cd,
-    product_cd
-LIMIT 10
-;
+ORDER BY store_cd, product_cd
+LIMIT 10;
+
+-- コード例2: MODE()を使う簡易ケース（早いが最頻値が複数の場合は一つだけ選ばれる）
+-- MODE() は最頻値を返す集約関数
+-- WITHIN GROUP (ORDER BY product_cd) は「product_cd の順序に基づいて最頻値を決定する」指定
+--   → 同じ出現回数の値が複数ある場合、ORDER BY の順序で最初に来る値が返される
+-- コード例1(RANK使用)との違い: 最頻値が複数あっても1行しか返さない
+SELECT store_cd, MODE() WITHIN GROUP (
+        ORDER BY product_cd
+    )
+FROM receipt
+GROUP BY
+    store_cd
+ORDER BY store_cd
+LIMIT 10;
