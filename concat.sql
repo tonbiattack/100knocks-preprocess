@@ -71,13 +71,17 @@ SELECT * FROM customer WHERE customer_id LIKE '%1' LIMIT 10;
 
 SELECT * FROM store WHERE address LIKE '%横浜市%';
 
+-- ⚠️ PostgreSQL固有: ~ 演算子はPostgreSQL専用。MySQLではREGEXP、他DBでは非対応の場合あり
 SELECT * FROM customer WHERE status_cd ~ '^[A-F]' LIMIT 10;
 -- ~ は正規表現マッチ演算子（大文字小文字を区別する）
 -- '[1-9]$' は「文字列の末尾($)が1〜9のいずれかの数字([1-9])」にマッチする正規表現
+-- ⚠️ PostgreSQL固有: ~ 演算子はPostgreSQL専用。MySQLではREGEXP、他DBでは非対応の場合あり
 SELECT * FROM customer WHERE status_cd ~ '[1-9]$' LIMIT 10;
 
+-- ⚠️ PostgreSQL固有: ~ 演算子はPostgreSQL専用。MySQLではREGEXP、他DBでは非対応の場合あり
 SELECT * FROM customer WHERE status_cd ~ '^[A-F].*[1-9]$' LIMIT 10;
 
+-- ⚠️ PostgreSQL固有: ~ 演算子はPostgreSQL専用。MySQLではREGEXP、他DBでは非対応の場合あり
 SELECT * FROM store WHERE tel_no ~ '^[0-9]{3}-[0-9]{3}-[0-9]{4}$';
 
 SELECT * FROM customer ORDER BY birth_day LIMIT 10;
@@ -139,6 +143,7 @@ GROUP BY
 ORDER BY avg_amount DESC
 LIMIT 5;
 
+-- ⚠️ PostgreSQL/標準SQL: PERCENTILE_CONT はPostgreSQL・Oracle等で対応。MySQLでは非対応（8.0以前）
 -- PERCENTILE_CONT(0.5) は連続パーセンタイル関数で、指定した分位数(0.5=50パーセンタイル=中央値)を計算する
 -- WITHIN GROUP (ORDER BY amount) は「amountを昇順に並べた中での」パーセンタイル位置を指定する
 -- 値が偶数個の場合、中央2値の平均値を返す（連続補間）
@@ -190,6 +195,7 @@ WHERE
 ORDER BY store_cd, product_cd
 LIMIT 10;
 
+-- ⚠️ PostgreSQL固有: MODE() はPostgreSQL専用の集約関数。MySQL・SQLite等では非対応
 -- コード例2: MODE()を使う簡易ケース（早いが最頻値が複数の場合は一つだけ選ばれる）
 -- MODE() は最頻値を返す集約関数
 -- WITHIN GROUP (ORDER BY product_cd) は「product_cd の順序に基づいて最頻値を決定する」指定
